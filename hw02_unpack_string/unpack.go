@@ -34,8 +34,7 @@ func Unpack(source string) (string, error) {
 
 		case NORMAL:
 			if unicode.IsDigit(char) {
-				currentAsString := string(char)
-				currentAsDigit, err := strconv.Atoi(currentAsString)
+				currentAsDigit, err := strconv.Atoi(string(char))
 				if err != nil {
 					return "", err
 				}
