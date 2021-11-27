@@ -12,8 +12,8 @@ var ErrInvalidString = errors.New("invalid string")
 type unpackState uint
 
 const (
-	EXPECTING_LETTER unpackState = 0
-	NORMAL           unpackState = 1
+	EXPECTING_NON_DIGIT unpackState = 0
+	NORMAL              unpackState = 1
 )
 
 func Unpack(source string) (string, error) {
@@ -22,16 +22,15 @@ func Unpack(source string) (string, error) {
 	}
 	var sb strings.Builder
 	var previous rune
-	var state unpackState = EXPECTING_LETTER
+	var state unpackState = EXPECTING_NON_DIGIT
 	for _, char := range source {
 		switch state {
-		case EXPECTING_LETTER:
+		case EXPECTING_NON_DIGIT:
 			if unicode.IsDigit(char) {
 				return "", ErrInvalidString
 			} else {
 				state = NORMAL
 			}
-
 		case NORMAL:
 			if unicode.IsDigit(char) {
 				currentAsDigit, err := strconv.Atoi(string(char))
@@ -39,7 +38,7 @@ func Unpack(source string) (string, error) {
 					return "", err
 				}
 				sb.WriteString(strings.Repeat(string(previous), currentAsDigit))
-				state = EXPECTING_LETTER
+				state = EXPECTING_NON_DIGIT
 			} else {
 				sb.WriteRune(previous)
 			}
