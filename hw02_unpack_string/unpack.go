@@ -24,8 +24,8 @@ func Unpack(source string) (string, error) {
 	}
 	var sb strings.Builder
 	var previous rune
-	var state = INITIAL
-	var needLast = true
+	state := INITIAL
+	needLast := true
 	for _, char := range source {
 		needLast = true
 		switch state {
