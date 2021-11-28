@@ -24,30 +24,33 @@ func Unpack(source string) (string, error) {
 	}
 	var sb strings.Builder
 	var previous rune
-	var state previousSymbolState = INITIAL
-	var needLast bool = true
+	var state = INITIAL
+	var needLast = true
 	for _, char := range source {
 		needLast = true
 		switch state {
 		case INITIAL:
-			if unicode.IsDigit(char) {
+			switch {
+			case unicode.IsDigit(char):
 				return "", ErrInvalidString
-			} else if char == '\\' {
+			case char == '\\':
 				state = ESCAPE
-			} else {
+			default:
 				state = LETTER
 			}
 		case DIGIT:
-			if unicode.IsDigit(char) {
+			switch {
+			case unicode.IsDigit(char):
 				return "", ErrInvalidString
-			} else if char == '\\' {
+			case char == '\\':
 				sb.WriteRune(previous)
 				state = ESCAPE
-			} else {
+			default:
 				state = LETTER
 			}
 		case LETTER:
-			if unicode.IsDigit(char) {
+			switch {
+			case unicode.IsDigit(char):
 				number, err := strconv.Atoi(string(char))
 				if err != nil {
 					return "", err
@@ -57,24 +60,24 @@ func Unpack(source string) (string, error) {
 				/* we need to add the last symbol to the result in all situations
 				except when the last operation on sequence was unpacking */
 				needLast = false
-			} else if char == '\\' {
+			case char == '\\':
 				sb.WriteRune(previous)
 				state = ESCAPE
-			} else {
+			default:
 				sb.WriteRune(previous)
 				state = LETTER
 			}
 		case ESCAPE:
-			if unicode.IsDigit(char) {
+			switch {
+			case unicode.IsDigit(char):
 				state = LETTER
-			} else if char == '\\' {
+			case char == '\\':
 				state = LETTER
-			} else {
+			default:
 				return "", ErrInvalidString
 			}
 		}
 		previous = char
-
 	}
 	if needLast {
 		sb.WriteRune(previous)
