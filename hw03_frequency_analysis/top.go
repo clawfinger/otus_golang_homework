@@ -1,6 +1,7 @@
 package hw03frequencyanalysis
 
 import (
+	"regexp"
 	"sort"
 	"strings"
 )
@@ -10,12 +11,17 @@ type wordData struct {
 	count int
 }
 
+var matcher = regexp.MustCompile(`\p{L}+-*\p{L}*`)
+
 func Top10(source string) []string {
 	const NUMBER = 10
 	dict := make(map[string]int)
 	splitted := strings.Fields(source)
 	for _, word := range splitted {
-		dict[word]++
+		matched := matcher.FindString(strings.ToLower(word))
+		if len(matched) > 0 {
+			dict[matched]++
+		}
 	}
 	prepslice := make([]wordData, 0, len(dict))
 
