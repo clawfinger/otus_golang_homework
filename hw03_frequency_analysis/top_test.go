@@ -79,4 +79,14 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+	// new tests
+	t.Run("lower then 10", func(t *testing.T) {
+		require.Len(t, Top10("a c b"), 3)
+	})
+	t.Run("all whitespaces", func(t *testing.T) {
+		require.Len(t, Top10("                    "), 0)
+	})
+	t.Run("one symbol", func(t *testing.T) {
+		require.Len(t, Top10("1"), 1)
+	})
 }
