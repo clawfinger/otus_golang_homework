@@ -72,7 +72,7 @@ func TestCache(t *testing.T) {
 		_, ok = c.Get("b")
 		require.False(t, ok)
 
-		//least used pop
+		// least used pop
 		wasInCache = c.Set("b", 100)
 		require.False(t, wasInCache)
 
@@ -93,7 +93,6 @@ func TestCache(t *testing.T) {
 }
 
 func TestCacheMultithreading(t *testing.T) {
-
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
 	wg.Add(2)

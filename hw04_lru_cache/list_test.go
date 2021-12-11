@@ -83,4 +83,19 @@ func TestList(t *testing.T) {
 		require.Equal(t, "b", l.Front().Value)
 		require.Equal(t, "a", l.Back().Value)
 	})
+	t.Run("removing", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("2")
+		l.PushFront("1")
+		l.Remove(l.Back())
+		require.Equal(t, "1", l.Front().Value)
+		require.Equal(t, "1", l.Back().Value)
+
+		l = NewList()
+		l.PushFront("2")
+		l.PushFront("1")
+		l.Remove(l.Front())
+		require.Equal(t, "2", l.Front().Value)
+		require.Equal(t, "2", l.Back().Value)
+	})
 }
