@@ -80,13 +80,9 @@ func (l *list) removeImpl(i *ListItem) {
 }
 
 func (l *list) Remove(i *ListItem) {
-	current := l.Head
-	for current.Next != nil {
-		if i == current {
-			l.removeImpl(i)
-		}
-		current = current.Next
-	}
+	prev := i.Prev
+	next := i.Next
+	prev.Next = next
 	l.len--
 }
 

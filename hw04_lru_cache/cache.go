@@ -9,11 +9,25 @@ type Cache interface {
 }
 
 type lruCache struct {
-	Cache // Remove me after realization.
-
 	capacity int
 	queue    List
 	items    map[Key]*ListItem
+}
+
+func (c *lruCache) Set(key Key, value interface{}) bool {
+	return false
+
+}
+
+func (c *lruCache) Get(key Key) (interface{}, bool) {
+	return nil, false
+}
+
+func (c *lruCache) Clear() {
+	for _, v := range c.items {
+		c.queue.Remove(v)
+	}
+	c.items = make(map[Key]*ListItem, c.capacity)
 }
 
 type cacheItem struct {
