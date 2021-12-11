@@ -73,15 +73,19 @@ func (l *list) PushBack(v interface{}) *ListItem {
 	return item
 }
 
-func (l *list) removeImpl(i *ListItem) {
-	prev := i.Prev
-	next := i.Next
-	prev.Next = next
-}
-
 func (l *list) Remove(i *ListItem) {
 	prev := i.Prev
+
+	if prev == nil {
+		l.Head = i.Next
+	}
+
 	next := i.Next
+
+	if next == nil {
+		l.Tail = i.Prev
+	}
+
 	prev.Next = next
 	l.len--
 }
@@ -90,7 +94,7 @@ func (l *list) MoveToFront(i *ListItem) {
 	if i == l.Head {
 		return
 	}
-	l.removeImpl(i)
+	l.Remove(i)
 	l.PushFront(i.Value)
 }
 
