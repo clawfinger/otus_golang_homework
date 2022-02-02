@@ -48,4 +48,54 @@ func TestList(t *testing.T) {
 		}
 		require.Equal(t, []int{70, 80, 60, 40, 10, 30, 50}, elems)
 	})
+	t.Run("consecutive_front_back", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(1)
+		l.PushFront(2)
+		l.PushFront(3)
+		require.Equal(t, 3, l.Len())
+		require.Equal(t, 3, l.Front().Value)
+		require.Equal(t, 1, l.Back().Value)
+
+		l = NewList()
+
+		l.PushBack(4)
+		l.PushBack(5)
+		l.PushBack(6)
+		require.Equal(t, 3, l.Len())
+		require.Equal(t, 4, l.Front().Value)
+		require.Equal(t, 6, l.Back().Value)
+	})
+	t.Run("head_only", func(t *testing.T) {
+		l := NewList()
+		l.PushFront(1)
+
+		require.Equal(t, 1, l.Front().Value)
+		require.Equal(t, 1, l.Back().Value)
+	})
+	t.Run("switching places", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("b")
+		l.PushFront("a")
+		require.Equal(t, "a", l.Front().Value)
+		require.Equal(t, "b", l.Back().Value)
+		l.MoveToFront(l.Back())
+		require.Equal(t, "b", l.Front().Value)
+		require.Equal(t, "a", l.Back().Value)
+	})
+	t.Run("removing", func(t *testing.T) {
+		l := NewList()
+		l.PushFront("2")
+		l.PushFront("1")
+		l.Remove(l.Back())
+		require.Equal(t, "1", l.Front().Value)
+		require.Equal(t, "1", l.Back().Value)
+
+		l = NewList()
+		l.PushFront("2")
+		l.PushFront("1")
+		l.Remove(l.Front())
+		require.Equal(t, "2", l.Front().Value)
+		require.Equal(t, "2", l.Back().Value)
+	})
 }
