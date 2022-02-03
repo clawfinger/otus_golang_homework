@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 	err := Copy(from, to, offset, limit)
 	if err != nil {
-		fmt.Printf("Error occured on file copy. Reason: %s\n", err.Error())
+		fmt.Printf("Error occurred on file copy. Reason: %s\n", err.Error())
 	} else {
 		fmt.Printf("Success")
 	}

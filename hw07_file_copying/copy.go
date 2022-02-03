@@ -9,15 +9,11 @@ import (
 	"github.com/cheggaaa/pb"
 )
 
-var (
-	ErrUnsupportedFile       = errors.New("unsupported file")
-	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
-)
+var ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 
 const BufferLen = 5120
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-
 	count := 100
 	// create and start new bar
 	bar := pb.StartNew(count)
@@ -25,7 +21,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	// finish bar
 	defer bar.Finish()
 	source, err := os.OpenFile(fromPath, os.O_RDONLY, os.ModeAppend)
-
 	if err != nil {
 		return err
 	}
@@ -37,7 +32,6 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	}
 
 	fi, err := source.Stat()
-
 	if err != nil {
 		return err
 	}
