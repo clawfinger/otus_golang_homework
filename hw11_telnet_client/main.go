@@ -41,10 +41,10 @@ func main() {
 
 	address := net.JoinHostPort(args[0], args[1])
 	client := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
-	// if err := client.Connect(); err != nil {
-	// 	fmt.Fprintf(os.Stderr, "unable to connect to server %s\n", address)
-	// 	return
-	// }
+	if err := client.Connect(); err != nil {
+		fmt.Fprintf(os.Stderr, "unable to connect to server %s\n", address)
+		return
+	}
 
 	defer client.Close()
 
