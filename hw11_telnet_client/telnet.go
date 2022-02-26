@@ -30,8 +30,9 @@ type Client struct {
 
 func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
 	ctx, cancelFunc := context.WithCancel(context.Background())
-	return &Client{address: address, timeout: timeout, in: in, out: out, conn: nil, ctx: ctx,
-		cancelFunc: cancelFunc}
+	return &Client{
+		address: address, timeout: timeout, in: in, out: out, conn: nil, ctx: ctx, cancelFunc: cancelFunc,
+	}
 }
 
 func (c *Client) Connect() error {
