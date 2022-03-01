@@ -5,6 +5,7 @@ import (
 	"testing"
 )
 
+//nolint:lll
 func BenchmarkStats(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		data := `{"Id":1,"Name":"Howard Mendoza","Username":"0Oliver","Email":"aliquid_qui_ea@Browsedrive.gov","Phone":"6-866-899-36-79","Password":"InAQJvsq","Address":"Blackbird Place 25"}
