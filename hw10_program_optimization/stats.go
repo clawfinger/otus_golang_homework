@@ -28,22 +28,18 @@ func countDomainsOptimized(r io.Reader, domain string) (DomainStat, error) {
 	result := make(DomainStat)
 	searchString := "." + domain
 
-	bufReader := bufio.NewReaderSize(r, 10000)
-	for {
-		line, readErr := bufReader.ReadString(10)
-		var user User
-		if err := jsoniter.Unmarshal([]byte(line), &user); err != nil {
-			return result, err
-		}
+	bufReader := bufio.NewScanner(r)
+	for bufReader.Scan() {
+		line := bufReader.Text()
+		found := strings.Contains(line, searchString)
 
-		matched := strings.Contains(user.Email, searchString)
+		if found {
+			var user User
+			if err := jsoniter.Unmarshal([]byte(line), &user); err != nil {
+				return result, err
+			}
 
-		if matched {
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]++
-		}
-
-		if readErr == io.EOF {
-			break
+			result[strings.ToLower(strings.Split(user.Email, "@")[1])]++
 		}
 	}
 	return result, nil
