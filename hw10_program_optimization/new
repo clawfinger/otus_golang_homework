@@ -1,0 +1,7 @@
+goos: linux
+goarch: amd64
+pkg: github.com/clawfinger/hw10_program_optimization
+cpu: AMD Ryzen 7 3700X 8-Core Processor             
+BenchmarkStats-4   	  124882	      9538 ns/op	   10689 B/op	     123 allocs/op
+PASS
+ok  	github.com/clawfinger/hw10_program_optimization	1.294s
