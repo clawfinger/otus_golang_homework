@@ -62,4 +62,11 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+	t.Run("no connection", func(t *testing.T) {
+		in := &bytes.Buffer{}
+		out := &bytes.Buffer{}
+		client := NewTelnetClient("dummy", time.Second, ioutil.NopCloser(in), out)
+		err := client.Send()
+		require.ErrorIs(t, err, errNoConnection)
+	})
 }
