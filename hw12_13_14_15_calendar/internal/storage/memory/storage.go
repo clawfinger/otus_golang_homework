@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/errors"
+	appError "github.com/clawfinger/hw12_13_14_15_calendar/internal/errors"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -24,7 +24,7 @@ func (s *Storage) Create(e *storage.Event) error {
 	defer s.m.Unlock()
 	_, ok := s.storage[e.Date]
 	if ok {
-		return errors.ErrDateBusy
+		return appError.ErrDateBusy
 	} else {
 		s.storage[e.Date] = e
 	}
@@ -38,7 +38,7 @@ func (s *Storage) Update(e *storage.Event) error {
 	if ok {
 		s.storage[e.Date] = e
 	} else {
-		return errors.ErrNoSuchEvent
+		return appError.ErrNoSuchEvent
 	}
 	return nil
 }
@@ -50,7 +50,7 @@ func (s *Storage) Delete(e *storage.Event) error {
 	if ok {
 		delete(s.storage, e.Date)
 	} else {
-		return errors.ErrNoSuchEvent
+		return appError.ErrNoSuchEvent
 	}
 	return nil
 }
