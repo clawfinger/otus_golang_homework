@@ -5,20 +5,24 @@ import (
 
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
+	memorystorage "github.com/clawfinger/hw12_13_14_15_calendar/internal/storage/memory"
 )
 
 type App struct { // TODO
-	Cfg    *config.Config
-	Logger logger.Logger
-}
-
-type Storage interface { // TODO
+	Cfg        *config.Config
+	Logger     logger.Logger
+	storage    storage.Storage
+	httpServer *internalhttp.Server
 }
 
 func New() *App {
 	return &App{
-		Cfg:    config.NewConfig(),
-		Logger: nil,
+		Cfg:        config.NewConfig(),
+		Logger:     nil,
+		storage:    nil,
+		httpServer: nil,
 	}
 }
 
@@ -28,13 +32,15 @@ func (a *App) Init(cfgFilePath string) error {
 		return err
 	}
 	a.Logger = logger.New(a.Cfg)
+
+	a.storage = memorystorage.NewMemoryStorage()
+	serverCtx := internalhttp.NewServerContext(a.Cfg, a.storage, a.Logger)
+	a.httpServer = internalhttp.NewServer(serverCtx)
 	return nil
 }
 
 func (a *App) Run(ctx context.Context) error {
-	_ = ctx
-	a.Logger.Info("Password: ", a.Cfg.Data.DbData.Password)
-	a.Logger.Info("Username: ", a.Cfg.Data.DbData.Username)
+	a.httpServer.Start(ctx)
 
 	return nil
 }

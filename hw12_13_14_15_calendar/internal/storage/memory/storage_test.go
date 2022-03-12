@@ -15,7 +15,7 @@ func TestStorage(t *testing.T) {
 	now := time.Now()
 
 	t.Run("Add the same", func(t *testing.T) {
-		testStorage := New()
+		testStorage := NewMemoryStorage()
 		event, err := storage.NewEvent("title", time.Now(), 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
@@ -24,7 +24,7 @@ func TestStorage(t *testing.T) {
 		require.True(t, errors.Is(err, appError.ErrDateBusy))
 	})
 	t.Run("Get for day", func(t *testing.T) {
-		testStorage := New()
+		testStorage := NewMemoryStorage()
 		event, err := storage.NewEvent("title", now.Add(time.Hour*6), 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
@@ -34,7 +34,7 @@ func TestStorage(t *testing.T) {
 		require.True(t, len(events) == 1)
 	})
 	t.Run("Update", func(t *testing.T) {
-		testStorage := New()
+		testStorage := NewMemoryStorage()
 		event, err := storage.NewEvent("title", time.Now(), 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
@@ -49,7 +49,7 @@ func TestStorage(t *testing.T) {
 		require.Equal(t, events[0].OwnerID, "odd")
 	})
 	t.Run("Get for week", func(t *testing.T) {
-		testStorage := New()
+		testStorage := NewMemoryStorage()
 		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
@@ -62,7 +62,7 @@ func TestStorage(t *testing.T) {
 		require.True(t, len(events) == 1)
 	})
 	t.Run("Get for month", func(t *testing.T) {
-		testStorage := New()
+		testStorage := NewMemoryStorage()
 		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)

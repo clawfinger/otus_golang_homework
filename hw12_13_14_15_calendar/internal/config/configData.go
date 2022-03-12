@@ -8,6 +8,7 @@ type ConfigData struct {
 	DbData  DatabaseData
 	Logger  LoggerConf
 	Storage Storage
+	Http    Http
 }
 
 func newConfigData() *ConfigData {
@@ -17,6 +18,17 @@ func newConfigData() *ConfigData {
 func (d *ConfigData) SetDefault(v *viper.Viper) {
 	d.Logger.SetDefault(v)
 	d.Storage.SetDefault(v)
+	d.Http.SetDefault(v)
+}
+
+type Http struct {
+	Addr string
+}
+
+func (d *Http) SetDefault(v *viper.Viper) {
+	v.SetDefault("Http", map[string]interface{}{
+		"Addr": "127.0.0.1:8080",
+	})
 }
 
 type LoggerConf struct {
