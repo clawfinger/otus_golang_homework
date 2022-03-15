@@ -1,6 +1,7 @@
 package memorystorage
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -19,18 +20,19 @@ func NewMemoryStorage() *MemoryStorage {
 	}
 }
 
+//nolint
 func (s *MemoryStorage) Create(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	_, ok := s.storage[e.Date]
 	if ok {
 		return appError.ErrDateBusy
-	} else {
-		s.storage[e.Date] = e
 	}
+	s.storage[e.Date] = e
 	return nil
 }
 
+//nolint
 func (s *MemoryStorage) Update(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -43,6 +45,7 @@ func (s *MemoryStorage) Update(e *storage.Event) error {
 	return nil
 }
 
+//nolint
 func (s *MemoryStorage) Delete(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -83,4 +86,8 @@ func (s *MemoryStorage) GetEventsForMonth(monthStart time.Time) []*storage.Event
 	from := time.Date(monthStart.Year(), monthStart.Month(), monthStart.Day(), 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 1, 0)
 	return s.getEventsBetweenDates(from, to)
+}
+
+func (s *MemoryStorage) Close(ctx context.Context) error {
+	return nil
 }

@@ -1,6 +1,9 @@
 package storage
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // * Создать (событие);
 // * Обновить (ID события, событие);
@@ -15,4 +18,5 @@ type Storage interface {
 	GetEventsForDay(day time.Time) []*Event
 	GetEventsForWeek(weekStart time.Time) []*Event
 	GetEventsForMonth(monthStart time.Time) []*Event
+	Close(ctx context.Context) error
 }

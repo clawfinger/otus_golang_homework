@@ -10,6 +10,12 @@ import (
 	"syscall"
 
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/app"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
+	memorystorage "github.com/clawfinger/hw12_13_14_15_calendar/internal/storage/memory"
+	sqlstorage "github.com/clawfinger/hw12_13_14_15_calendar/internal/storage/sql"
 	"github.com/spf13/cobra"
 )
 
@@ -20,18 +26,50 @@ func main() {
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	_ = ctx
 	defer cancel()
-	app := app.New()
 	rootCmd := &cobra.Command{
 		Use: "calendar",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := app.Init(configFile)
+			config := config.NewConfig()
+			err := config.Init(configFile)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "Error on application init, Reason: %s", err.Error())
+				fmt.Fprintf(os.Stderr, "Error on config init, Reason: %s", err.Error())
 				return
 			}
+			logger, err := logger.New(config)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error on logger init, Reason: %s", err.Error())
+				return
+			}
+			storageType := config.Data.Storage.Type
+			var abstractStorage storage.Storage
+
+			switch storageType {
+			case "inmemory":
+				abstractStorage = memorystorage.NewMemoryStorage()
+			case "sql":
+				sqlStorage := sqlstorage.NewSQLStorage(config, logger)
+				err := sqlStorage.Connect(ctx)
+				if err != nil {
+					fmt.Fprintf(os.Stderr, "Error on sql storage connect, Reason: %s", err.Error())
+					return
+				}
+				abstractStorage = sqlStorage
+			}
+			serverCtx := internalhttp.NewServerContext(config, abstractStorage, logger)
+			httpServer := internalhttp.NewServer(serverCtx)
+
+			defer abstractStorage.Close(ctx)
+			app := app.New(config, logger, abstractStorage, httpServer)
+
 			app.Run(ctx)
 		},
 	}
+	rootCmd.AddCommand(&cobra.Command{
+		Use: "version",
+		Run: func(cmd *cobra.Command, args []string) {
+			printVersion()
+		},
+	})
 	executablePath, err := os.Executable()
 	if err != nil {
 		panic(err)

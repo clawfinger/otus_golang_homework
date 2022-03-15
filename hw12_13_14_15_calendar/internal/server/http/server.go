@@ -6,19 +6,18 @@ import (
 )
 
 type Server struct { // TODO
-	server    http.Server
+	server    *http.Server
 	mux       *http.ServeMux
 	handler   Handler
-	serverCtx *serverContext
-	ctx       context.Context
+	serverCtx *ServerContext
 }
 
-func NewServer(serverCtx *serverContext) *Server {
+func NewServer(serverCtx *ServerContext) *Server {
 	handler := NewHandler(serverCtx.Logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", handler.helloWorld)
-	server := http.Server{
-		Addr:    serverCtx.Cfg.Data.Http.Addr,
+	server := &http.Server{
+		Addr:    serverCtx.Cfg.Data.HTTP.Addr,
 		Handler: mux,
 	}
 

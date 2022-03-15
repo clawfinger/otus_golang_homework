@@ -12,7 +12,7 @@ import (
 // Организация конфига в main принуждает нас сужать API компонентов, использовать
 // при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
-	Data *ConfigData
+	Data *Data
 }
 
 func NewConfig() *Config {
@@ -40,8 +40,8 @@ func (c *Config) Init(cfgFilePath string) error {
 	}
 
 	err = viper.WriteConfig()
-	c.Data.DbData.Username = viper.GetString("dbdata.username")
-	c.Data.DbData.Password = viper.GetString("dbdata.password")
+	c.Data.DBData.Username = viper.GetString("dbdata.username")
+	c.Data.DBData.Password = viper.GetString("dbdata.password")
 	return err
 }
 

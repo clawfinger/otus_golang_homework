@@ -19,10 +19,10 @@ type loggerImpl struct { // TODO
 	zapLogger *zap.SugaredLogger
 }
 
-func New(cfg *config.Config) Logger {
+func New(cfg *config.Config) (Logger, error) {
 	zapLevel, err := loggerLevelFromString(cfg.Data.Logger.Level)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on logger init, Reason: %s", err.Error())
+		return nil, fmt.Errorf("Error on logger init, Reason: %w", err)
 	}
 
 	pe := zap.NewProductionEncoderConfig()
@@ -31,7 +31,7 @@ func New(cfg *config.Config) Logger {
 	consoleEncoder := zapcore.NewConsoleEncoder(pe)
 	fileSync, _, err := zap.Open(cfg.Data.Logger.Filename)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error on logger init, Reason: %s", err.Error())
+		return nil, fmt.Errorf("Error on logger init, Reason: %w", err)
 	}
 	core := zapcore.NewTee(
 		zapcore.NewCore(consoleEncoder, zapcore.AddSync(fileSync), zapLevel),
@@ -42,7 +42,7 @@ func New(cfg *config.Config) Logger {
 
 	return &loggerImpl{
 		zapLogger: l.Sugar(),
-	}
+	}, nil
 }
 
 func (l *loggerImpl) Info(args ...interface{}) {

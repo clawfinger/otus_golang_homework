@@ -2,6 +2,8 @@ package memorystorage
 
 import (
 	"errors"
+	"math/rand"
+	"sync"
 	"testing"
 	"time"
 
@@ -11,7 +13,6 @@ import (
 )
 
 func TestStorage(t *testing.T) {
-
 	now := time.Now()
 
 	t.Run("Add the same", func(t *testing.T) {
@@ -73,5 +74,26 @@ func TestStorage(t *testing.T) {
 		firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation)
 		events := testStorage.GetEventsForMonth(firstOfMonth)
 		require.True(t, len(events) == 1)
+	})
+	t.Run("Concurrent", func(t *testing.T) {
+		testStorage := NewMemoryStorage()
+
+		var wg sync.WaitGroup
+		wg.Add(2)
+		concurrentRunner := func() {
+			defer wg.Done()
+			for i := 0; i < 20; i++ {
+				event, err := storage.NewEvent("title", now.Add(time.Minute*time.Duration(rand.Uint32())), 5*time.Minute, "owner")
+				require.NoError(t, err)
+				err = testStorage.Create(event)
+				require.NoError(t, err)
+				err = testStorage.Delete(event)
+				require.NoError(t, err)
+			}
+		}
+
+		go concurrentRunner()
+		go concurrentRunner()
+		wg.Wait()
 	})
 }

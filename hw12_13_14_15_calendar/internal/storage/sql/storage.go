@@ -8,7 +8,7 @@ import (
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
-	_ "github.com/jackc/pgx/stdlib"
+	_ "github.com/jackc/pgx/stdlib" //nolint
 	"github.com/jmoiron/sqlx"
 )
 
@@ -27,7 +27,7 @@ type Storage struct { // TODO
 	logger logger.Logger
 }
 
-func NewSqlStorage(cfg *config.Config, logger logger.Logger) *Storage {
+func NewSQLStorage(cfg *config.Config, logger logger.Logger) *Storage {
 	return &Storage{
 		db:     nil,
 		cfg:    cfg,
@@ -38,7 +38,7 @@ func NewSqlStorage(cfg *config.Config, logger logger.Logger) *Storage {
 func (s *Storage) Connect(ctx context.Context) error {
 	var err error
 	connectString := fmt.Sprintf("user=%s password=%s dbname=%s sslmode=disable",
-		s.cfg.Data.DbData.Username, s.cfg.Data.DbData.Password, "calendar")
+		s.cfg.Data.DBData.Username, s.cfg.Data.DBData.Password, "calendar")
 	s.db, err = sqlx.Open("pgx", connectString)
 	if err != nil {
 		return err

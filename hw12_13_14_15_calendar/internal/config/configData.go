@@ -4,29 +4,29 @@ import (
 	"github.com/spf13/viper"
 )
 
-type ConfigData struct {
-	DbData  DatabaseData
+type Data struct {
+	DBData  DatabaseData
 	Logger  LoggerConf
 	Storage Storage
-	Http    Http
+	HTTP    HTTP
 }
 
-func newConfigData() *ConfigData {
-	return &ConfigData{}
+func newConfigData() *Data {
+	return &Data{}
 }
 
-func (d *ConfigData) SetDefault(v *viper.Viper) {
+func (d *Data) SetDefault(v *viper.Viper) {
 	d.Logger.SetDefault(v)
 	d.Storage.SetDefault(v)
-	d.Http.SetDefault(v)
+	d.HTTP.SetDefault(v)
 }
 
-type Http struct {
+type HTTP struct {
 	Addr string
 }
 
-func (d *Http) SetDefault(v *viper.Viper) {
-	v.SetDefault("Http", map[string]interface{}{
+func (d *HTTP) SetDefault(v *viper.Viper) {
+	v.SetDefault("HTTP", map[string]interface{}{
 		"Addr": "127.0.0.1:8080",
 	})
 }

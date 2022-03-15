@@ -6,14 +6,14 @@ import (
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 )
 
-type serverContext struct {
+type ServerContext struct {
 	Cfg     *config.Config
 	Storage storage.Storage
 	Logger  logger.Logger
 }
 
-func NewServerContext(cfg *config.Config, storage storage.Storage, logger logger.Logger) *serverContext {
-	return &serverContext{
+func NewServerContext(cfg *config.Config, storage storage.Storage, logger logger.Logger) *ServerContext {
+	return &ServerContext{
 		Cfg:     cfg,
 		Storage: storage,
 		Logger:  logger,
