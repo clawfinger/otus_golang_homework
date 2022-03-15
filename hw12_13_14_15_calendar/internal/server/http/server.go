@@ -15,7 +15,7 @@ type Server struct { // TODO
 func NewServer(serverCtx *ServerContext) *Server {
 	handler := NewHandler(serverCtx.Logger)
 	mux := http.NewServeMux()
-	mux.HandleFunc("/hello", handler.helloWorld)
+	mux.HandleFunc("/hello", loggingMiddleware(handler.helloWorld, serverCtx.Logger))
 	server := &http.Server{
 		Addr:    serverCtx.Cfg.Data.HTTP.Addr,
 		Handler: mux,

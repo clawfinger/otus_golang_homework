@@ -24,7 +24,6 @@ var configFile string
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(),
 		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	_ = ctx
 	defer cancel()
 	rootCmd := &cobra.Command{
 		Use: "calendar",
@@ -57,7 +56,7 @@ func main() {
 			}
 			serverCtx := internalhttp.NewServerContext(config, abstractStorage, logger)
 			httpServer := internalhttp.NewServer(serverCtx)
-
+			defer httpServer.Stop(ctx)
 			defer abstractStorage.Close(ctx)
 			app := app.New(config, logger, abstractStorage, httpServer)
 
