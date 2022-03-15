@@ -16,13 +16,13 @@ import (
 // * За сколько времени высылать уведомление, опционально.
 
 type Event struct {
-	ID          string
-	Title       string
-	Date        time.Time
-	Duration    time.Duration
-	Description string
-	OwnerID     string
-	NotifyTime  time.Duration
+	ID          string        `db:"ID"`
+	Title       string        `db:"Title"`
+	Date        time.Time     `db:"Date"`
+	Duration    time.Duration `db:"Duration"`
+	Description string        `db:"Description"`
+	OwnerID     string        `db:"OwnerID"`
+	NotifyTime  time.Duration `db:"NotifyTime"`
 }
 
 func NewEvent(title string, date time.Time, duration time.Duration, owner string) (*Event, error) {
