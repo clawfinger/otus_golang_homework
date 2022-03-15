@@ -11,6 +11,7 @@ func loggingMiddleware(next http.HandlerFunc, logger logger.Logger) http.Handler
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		workStart := time.Now()
 		next(w, r)
-		logger.Info("Request", "Ip:", r.RemoteAddr, "Duration:", time.Since(workStart), "Method:", r.Method, "Path", r.URL.Path)
+		logger.Info("Request", "Ip:", r.RemoteAddr, "Duration:",
+			time.Since(workStart), "Method:", r.Method, "Path", r.URL.Path)
 	})
 }
