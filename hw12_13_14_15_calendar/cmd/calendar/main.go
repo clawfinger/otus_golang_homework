@@ -12,6 +12,8 @@ import (
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/app"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
+	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
+	grpcserver "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/grpc/server"
 	internalhttp "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/clawfinger/hw12_13_14_15_calendar/internal/storage/memory"
@@ -54,11 +56,13 @@ func main() {
 				}
 				abstractStorage = sqlStorage
 			}
-			serverCtx := internalhttp.NewServerContext(config, abstractStorage, logger)
+			serverCtx := servers.NewServerContext(config, abstractStorage, logger)
 			httpServer := internalhttp.NewServer(serverCtx)
+			grpcServer := grpcserver.NewGrpcServer(serverCtx)
 			defer httpServer.Stop(ctx)
+			defer grpcServer.Stop()
 			defer abstractStorage.Close(ctx)
-			app := app.New(config, logger, abstractStorage, httpServer)
+			app := app.New(config, logger, abstractStorage, httpServer, grpcServer)
 
 			app.Run(ctx)
 		},

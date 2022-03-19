@@ -3,16 +3,18 @@ package internalhttp
 import (
 	"context"
 	"net/http"
+
+	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
 )
 
 type Server struct { // TODO
 	server    *http.Server
 	mux       *http.ServeMux
 	handler   Handler
-	serverCtx *ServerContext
+	serverCtx *servers.ServerContext
 }
 
-func NewServer(serverCtx *ServerContext) *Server {
+func NewServer(serverCtx *servers.ServerContext) *Server {
 	handler := NewHandler(serverCtx.Logger)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", loggingMiddleware(handler.helloWorld, serverCtx.Logger))
