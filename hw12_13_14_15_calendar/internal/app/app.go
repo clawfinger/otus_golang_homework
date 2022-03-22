@@ -2,25 +2,30 @@ package app
 
 import (
 	"context"
+
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/http"
+	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 )
 
 type App struct { // TODO
+	Cfg        *config.Config
+	Logger     logger.Logger
+	storage    storage.Storage
+	httpServer *internalhttp.Server
 }
 
-type Logger interface { // TODO
+func New(cfg *config.Config, logger logger.Logger, storage storage.Storage, httpServer *internalhttp.Server) *App {
+	return &App{
+		Cfg:        cfg,
+		Logger:     logger,
+		storage:    storage,
+		httpServer: httpServer,
+	}
 }
 
-type Storage interface { // TODO
+func (a *App) Run(ctx context.Context) error {
+	err := a.httpServer.Start(ctx)
+	return err
 }
-
-func New(logger Logger, storage Storage) *App {
-	return &App{}
-}
-
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-	// TODO
-	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
-}
-
-// TODO

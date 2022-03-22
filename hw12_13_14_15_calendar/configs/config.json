@@ -1,0 +1,12 @@
+{
+  "http": {
+    "addr": "127.0.0.1:8080"
+  },
+  "logger": {
+    "filename": "calendar.log",
+    "level": "info"
+  },
+  "storage": {
+    "type": "inmemory"
+  }
+}
