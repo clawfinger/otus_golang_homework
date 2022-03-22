@@ -11,12 +11,12 @@ import (
 
 type MemoryStorage struct {
 	m       sync.RWMutex
-	storage map[time.Time]*storage.Event
+	storage map[string]*storage.Event
 }
 
 func NewMemoryStorage() *MemoryStorage {
 	return &MemoryStorage{
-		storage: make(map[time.Time]*storage.Event),
+		storage: make(map[string]*storage.Event),
 	}
 }
 
@@ -24,11 +24,13 @@ func NewMemoryStorage() *MemoryStorage {
 func (s *MemoryStorage) Create(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
-	_, ok := s.storage[e.Date]
-	if ok {
-		return appError.ErrDateBusy
+	for _, event := range s.storage {
+		if (event.Date.After(e.Date) && event.Date.Before(e.Date.Add(e.Duration))) ||
+			(e.Date.After(event.Date) && e.Date.Before(event.Date.Add(event.Duration))) {
+			return appError.ErrDateBusy
+		}
 	}
-	s.storage[e.Date] = e
+	s.storage[e.ID] = e
 	return nil
 }
 
@@ -36,9 +38,9 @@ func (s *MemoryStorage) Create(e *storage.Event) error {
 func (s *MemoryStorage) Update(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
-	_, ok := s.storage[e.Date]
+	_, ok := s.storage[e.ID]
 	if ok {
-		s.storage[e.Date] = e
+		s.storage[e.ID] = e
 	} else {
 		return appError.ErrNoSuchEvent
 	}
@@ -49,9 +51,9 @@ func (s *MemoryStorage) Update(e *storage.Event) error {
 func (s *MemoryStorage) Delete(e *storage.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
-	_, ok := s.storage[e.Date]
+	_, ok := s.storage[e.ID]
 	if ok {
-		delete(s.storage, e.Date)
+		delete(s.storage, e.ID)
 	} else {
 		return appError.ErrNoSuchEvent
 	}

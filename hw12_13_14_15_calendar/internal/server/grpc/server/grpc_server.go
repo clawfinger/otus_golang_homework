@@ -32,11 +32,10 @@ func (s *GrpcServer) Start() error {
 		log.Fatal(err)
 	}
 
-	s.server = grpc.NewServer()
+	s.server = grpc.NewServer(grpc.ChainUnaryInterceptor(LoggerInterceptor(s.context.Logger)))
 
 	pb.RegisterCalendarServer(s.server, s)
 
-	s.context.Logger.Info("starting grpc server on:", lsn.Addr().String())
 	if err := s.server.Serve(lsn); err != nil {
 		return err
 	}
