@@ -36,10 +36,7 @@ func (s *GrpcServer) Start() error {
 
 	pb.RegisterCalendarServer(s.server, s)
 
-	if err := s.server.Serve(lsn); err != nil {
-		return err
-	}
-	return nil
+	return s.server.Serve(lsn)
 }
 
 func (s *GrpcServer) Stop() error {
