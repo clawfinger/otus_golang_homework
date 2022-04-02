@@ -3,6 +3,7 @@ module github.com/clawfinger/hw12_13_14_15_calendar
 go 1.16
 
 require (
+	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/cockroachdb/apd v1.1.0 // indirect
 	github.com/gofrs/uuid v4.2.0+incompatible
 	github.com/golang/protobuf v1.5.2

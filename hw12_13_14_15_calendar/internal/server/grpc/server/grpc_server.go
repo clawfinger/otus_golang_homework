@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
+	pb "github.com/clawfinger/hw12_13_14_15_calendar/api/generated"
 	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
-	pb "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/grpc/generated"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
