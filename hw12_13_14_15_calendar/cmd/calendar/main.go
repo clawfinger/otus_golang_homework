@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/app"
+	calendarapp "github.com/clawfinger/hw12_13_14_15_calendar/internal/appdata/calendar"
 	calendarconfig "github.com/clawfinger/hw12_13_14_15_calendar/internal/config/calendar"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
@@ -62,7 +62,7 @@ func main() {
 			defer httpServer.Stop(ctx)
 			defer grpcServer.Stop()
 			defer abstractStorage.Close(ctx)
-			app := app.New(config, logger, abstractStorage, httpServer, grpcServer)
+			app := calendarapp.New(config, logger, abstractStorage, httpServer, grpcServer)
 
 			app.Run(ctx)
 		},

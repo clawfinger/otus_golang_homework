@@ -1,4 +1,4 @@
-package app
+package calendarapp
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 )
 
-type App struct { // TODO
+type Calendar struct { // TODO
 	Cfg        *calendarconfig.Config
 	Logger     logger.Logger
 	storage    storage.Storage
@@ -19,8 +19,8 @@ type App struct { // TODO
 }
 
 func New(cfg *calendarconfig.Config, logger logger.Logger, storage storage.Storage,
-	httpServer *internalhttp.Server, grpcServer *grpcserver.GrpcServer) *App {
-	return &App{
+	httpServer *internalhttp.Server, grpcServer *grpcserver.GrpcServer) *Calendar {
+	return &Calendar{
 		Cfg:        cfg,
 		Logger:     logger,
 		storage:    storage,
@@ -29,7 +29,7 @@ func New(cfg *calendarconfig.Config, logger logger.Logger, storage storage.Stora
 	}
 }
 
-func (a *App) Run(ctx context.Context) error {
+func (a *Calendar) Run(ctx context.Context) error {
 	go func() {
 		err := a.grpcServer.Start()
 		if err != nil {
