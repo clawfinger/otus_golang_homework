@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
+	calendarconfig "github.com/clawfinger/hw12_13_14_15_calendar/internal/config/calendar"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 	_ "github.com/jackc/pgx/stdlib" //nolint
@@ -23,11 +23,11 @@ const (
 
 type Storage struct { // TODO
 	db     *sqlx.DB
-	cfg    *config.Config
+	cfg    *calendarconfig.Config
 	logger logger.Logger
 }
 
-func NewSQLStorage(cfg *config.Config, logger logger.Logger) *Storage {
+func NewSQLStorage(cfg *calendarconfig.Config, logger logger.Logger) *Storage {
 	return &Storage{
 		db:     nil,
 		cfg:    cfg,
