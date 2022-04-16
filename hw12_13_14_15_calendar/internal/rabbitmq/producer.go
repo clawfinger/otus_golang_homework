@@ -14,38 +14,72 @@ import (
 type Producer struct {
 	conn         *amqp.Connection
 	channel      *amqp.Channel
+	sendChan     chan string
 	done         chan error
-	consumerTag  string
 	uri          string
 	exchangeName string
 	exchangeType string
-	queue        string
-	bindingKey   string
+	queueName    string
 	maxInterval  time.Duration
 	logger       logger.Logger
 }
 
-func (p *Producer) Handle(ctx context.Context) error {
+func NewProducer(uri string, exchangeName string, exchangeType string,
+	queueName string, maxReconTime time.Duration, logger logger.Logger) *Producer {
+	return &Producer{
+		conn:         nil,
+		channel:      nil,
+		sendChan:     make(chan string, 10),
+		done:         make(chan error),
+		uri:          uri,
+		exchangeName: exchangeName,
+		exchangeType: exchangeType,
+		queueName:    queueName,
+		maxInterval:  maxReconTime,
+		logger:       logger,
+	}
+}
+
+func (p *Producer) Send(msg string) {
+	p.sendChan <- msg
+}
+
+func (p *Producer) Handle(ctx context.Context) {
 	var err error
-	if err = p.Connect(); err != nil {
-		return fmt.Errorf("error: %v", err)
-	}
-
-	msgs, err := p.announceQueue()
-	if err != nil {
-		return fmt.Errorf("error: %v", err)
-	}
-
+	ctxDone := ctx.Done()
 	for {
-		//do stuff
-		_ = msgs
-		if <-p.done != nil {
-			msgs, err = p.reConnect(ctx)
+		select {
+		case <-ctxDone:
+			p.conn.Close()
+			return
+		case msg := <-p.sendChan:
+			err = p.channel.Publish(
+				p.exchangeName,
+				p.queueName,
+				false,
+				false,
+				amqp.Publishing{
+					Headers:         amqp.Table{},
+					ContentType:     "text/plain",
+					ContentEncoding: "",
+					Body:            []byte(msg),
+					DeliveryMode:    amqp.Transient, // 1=non-persistent, 2=persistent
+					Priority:        0,
+				},
+			)
 			if err != nil {
-				return fmt.Errorf("reconnecting Error: %s", err)
+				p.logger.Error("Exchange Publish error: ", err)
+			}
+		case err := <-p.done:
+			if err != nil {
+				err = p.reConnect(ctx)
+				if err != nil {
+					p.logger.Error("Reconnecting Error: ", err)
+					return
+				}
+				p.logger.Info("Reconnected... possibly")
 			}
 		}
-		fmt.Println("Reconnected... possibly")
 	}
 }
 
@@ -87,64 +121,13 @@ func (p *Producer) Connect() error {
 	return nil
 }
 
-func (p *Producer) announceQueue() (<-chan amqp.Delivery, error) {
-	queue, err := p.channel.QueueDeclare(
-		p.queue,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		if err != nil {
-			p.logger.Error("queue Declare error", err)
-			return nil, err
-		}
-	}
-
-	// Число сообщений, которые можно подтвердить за раз.
-	err = p.channel.Qos(50, 0, false)
-	if err != nil {
-		p.logger.Error("setting qos error", err)
-		return nil, err
-	}
-
-	// Создаём биндинг (правило маршрутизации).
-	if err = p.channel.QueueBind(
-		queue.Name,
-		p.bindingKey,
-		p.exchangeName,
-		false,
-		nil,
-	); err != nil {
-		p.logger.Error("queue Bind error", err)
-		return nil, err
-	}
-
-	msgs, err := p.channel.Consume(
-		queue.Name,
-		p.consumerTag,
-		false,
-		false,
-		false,
-		false,
-		nil,
-	)
-	if err != nil {
-		p.logger.Error("queue Consume error", err)
-		return nil, err
-	}
-
-	return msgs, nil
-}
-
-func (p *Producer) reConnect(ctx context.Context) (<-chan amqp.Delivery, error) {
+func (p *Producer) reConnect(ctx context.Context) error {
 	be := backoff.NewExponentialBackOff()
 	be.MaxElapsedTime = time.Minute
 	be.InitialInterval = 1 * time.Second
 	be.Multiplier = 2
-	be.MaxInterval = 15 * time.Second
+	p.maxInterval = 15 * time.Second
+	be.MaxInterval = p.maxInterval
 
 	b := backoff.WithContext(be, ctx)
 	for {
@@ -152,22 +135,14 @@ func (p *Producer) reConnect(ctx context.Context) (<-chan amqp.Delivery, error) 
 		if d == backoff.Stop {
 			err := fmt.Errorf("stop reconnecting")
 			p.logger.Info("stop reconnecting")
-			return nil, err
+			return err
 		}
 
-		select {
-		case <-time.After(d):
-			if err := p.Connect(); err != nil {
-				p.logger.Info("could not connect in reconnect call", err)
-				continue
-			}
-			msgs, err := p.announceQueue()
-			if err != nil {
-				p.logger.Info("Couldn't connect", err)
-				continue
-			}
-
-			return msgs, nil
+		<-time.After(d)
+		if err := p.Connect(); err != nil {
+			p.logger.Info("could not connect in reconnect call", err)
+			continue
 		}
+		return nil
 	}
 }

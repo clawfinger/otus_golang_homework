@@ -1,4 +1,4 @@
-package schedulerconfig
+package senderconfig
 
 import (
 	"fmt"

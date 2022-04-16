@@ -1,4 +1,4 @@
-package schedulerconfig
+package calendarconfig
 
 import (
 	"fmt"

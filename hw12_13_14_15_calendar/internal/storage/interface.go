@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"time"
+
+	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
 )
 
 // * Создать (событие);
@@ -12,11 +14,11 @@ import (
 // * СписокСобытийНаНеделю (дата начала недели);
 // * СписокСобытийНaМесяц (дата начала месяца).
 type Storage interface {
-	Create(e *Event) error
-	Update(e *Event) error
-	Delete(e *Event) error
-	GetEventsForDay(day time.Time) []*Event
-	GetEventsForWeek(weekStart time.Time) []*Event
-	GetEventsForMonth(monthStart time.Time) []*Event
+	Create(e *data.Event) error
+	Update(e *data.Event) error
+	Delete(e *data.Event) error
+	GetEventsForDay(day time.Time) []*data.Event
+	GetEventsForWeek(weekStart time.Time) []*data.Event
+	GetEventsForMonth(monthStart time.Time) []*data.Event
 	Close(ctx context.Context) error
 }

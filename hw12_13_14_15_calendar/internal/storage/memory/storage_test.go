@@ -7,7 +7,7 @@ import (
 	"time"
 
 	appError "github.com/clawfinger/hw12_13_14_15_calendar/internal/errors"
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
+	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,17 +16,17 @@ func TestStorage(t *testing.T) {
 
 	t.Run("Add to the busy", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
+		event, err := data.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
-		event2, _ := storage.NewEvent("title2", now.Add(1*time.Minute), 5*time.Minute, "owner2")
+		event2, _ := data.NewEvent("title2", now.Add(1*time.Minute), 5*time.Minute, "owner2")
 		err = testStorage.Create(event2)
 		require.ErrorIs(t, err, appError.ErrDateBusy)
 	})
 	t.Run("Get for day", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", now.Add(time.Hour*6), 5*time.Minute, "owner")
+		event, err := data.NewEvent("title", now.Add(time.Hour*6), 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
@@ -36,7 +36,7 @@ func TestStorage(t *testing.T) {
 	})
 	t.Run("Update", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", time.Now(), 5*time.Minute, "owner")
+		event, err := data.NewEvent("title", time.Now(), 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
@@ -51,7 +51,7 @@ func TestStorage(t *testing.T) {
 	})
 	t.Run("Get for week", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
+		event, err := data.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
@@ -64,7 +64,7 @@ func TestStorage(t *testing.T) {
 	})
 	t.Run("Get for month", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
+		event, err := data.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
@@ -83,7 +83,7 @@ func TestStorage(t *testing.T) {
 		concurrentRunner := func() {
 			defer wg.Done()
 			for i := 0; i < 20; i++ {
-				event, err := storage.NewEvent("title", now.Add(time.Minute*time.Duration(rand.Uint32())), 5*time.Minute, "owner")
+				event, err := data.NewEvent("title", now.Add(time.Minute*time.Duration(rand.Uint32())), 5*time.Minute, "owner")
 				require.NoError(t, err)
 				err = testStorage.Create(event)
 				require.NoError(t, err)
