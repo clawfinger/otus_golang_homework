@@ -1,0 +1,12 @@
+{
+  "consumer": {
+    "exchangename": "calendarEx",
+    "exchangetype": "topic",
+    "queuename": "events",
+    "rabbuturl": "amqp://guest:guest@localhost:5672/"
+  },
+  "logger": {
+    "filename": "sender.log",
+    "level": "debug"
+  }
+}

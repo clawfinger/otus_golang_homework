@@ -5,7 +5,7 @@ import (
 )
 
 type Data struct {
-	Logger   LoggerConf
+	Logger   Logger
 	Consumer Consumer
 }
 
@@ -18,12 +18,12 @@ func (d *Data) SetDefault(v *viper.Viper) {
 	d.Consumer.SetDefault(v)
 }
 
-type LoggerConf struct {
+type Logger struct {
 	Level    string
 	Filename string
 }
 
-func (d *LoggerConf) SetDefault(v *viper.Viper) {
+func (d *Logger) SetDefault(v *viper.Viper) {
 	v.SetDefault("Logger", map[string]interface{}{
 		"Level":    "debug",
 		"Filename": "sender.log",
@@ -31,15 +31,15 @@ func (d *LoggerConf) SetDefault(v *viper.Viper) {
 }
 
 type Consumer struct {
-	RabbutUrl    string
+	RabbutURL    string
 	ExchangeName string
 	ExchangeType string
 	QueueName    string
 }
 
 func (p *Consumer) SetDefault(v *viper.Viper) {
-	v.SetDefault("Producer", map[string]interface{}{
-		"RabbutUrl":    "127.0.0.1:5672",
+	v.SetDefault("Consumer", map[string]interface{}{
+		"RabbutURL":    "127.0.0.1:5672",
 		"ExchangeName": "calendarEx",
 		"ExchangeType": "topic",
 		"QueueName":    "events",

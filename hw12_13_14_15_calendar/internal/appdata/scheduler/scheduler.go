@@ -64,13 +64,19 @@ func (s *Scheduler) processEvents() {
 		// 	// тут нужно дописать нормальную обработку ивентов для которых уже отправлены нотификации но времени не хватает
 		// 	s.grpcClient.Delete(deleteCtx, rawEvent)
 		// }
+		// res, err := json.Marshal(event)
+		// if err != nil {
+		// 	s.logger.Error("Failed to marshall event")
+		// 	return
+		// }
+		// s.logger.Info("Sending notification for event:\n %s", string(res))
+
 		res, err := json.Marshal(event)
 		if err != nil {
 			s.logger.Error("Failed to marshall event")
 			return
 		}
-		s.logger.Info("Sending notification for event:\n %s", string(res))
-
+		s.radditProducer.Send(string(res))
 	}
 }
 

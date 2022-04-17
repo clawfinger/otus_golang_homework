@@ -7,9 +7,10 @@ import (
 
 	calendarconfig "github.com/clawfinger/hw12_13_14_15_calendar/internal/config/calendar"
 	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
-
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
-	_ "github.com/jackc/pgx/stdlib" //nolint
+
+	// because of reasons.
+	_ "github.com/jackc/pgx/stdlib"
 	"github.com/jmoiron/sqlx"
 )
 

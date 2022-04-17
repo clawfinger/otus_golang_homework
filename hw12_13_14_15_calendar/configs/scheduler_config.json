@@ -10,7 +10,7 @@
     "exchangename": "calendarEx",
     "exchangetype": "topic",
     "queuename": "events",
-    "rabbuturl": "127.0.0.1:5672"
+    "rabbuturl": "amqp://guest:guest@localhost:5672/"
   },
   "scheduler": {
     "cycletime": "1m"

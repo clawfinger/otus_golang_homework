@@ -47,7 +47,7 @@ func (d *Grpc) SetDefault(v *viper.Viper) {
 }
 
 type Producer struct {
-	RabbutUrl    string
+	RabbutURL    string
 	ExchangeName string
 	ExchangeType string
 	QueueName    string
@@ -55,7 +55,7 @@ type Producer struct {
 
 func (p *Producer) SetDefault(v *viper.Viper) {
 	v.SetDefault("Producer", map[string]interface{}{
-		"RabbutUrl":    "127.0.0.1:5672",
+		"RabbutURL":    "127.0.0.1:5672",
 		"ExchangeName": "calendarEx",
 		"ExchangeType": "topic",
 		"QueueName":    "events",

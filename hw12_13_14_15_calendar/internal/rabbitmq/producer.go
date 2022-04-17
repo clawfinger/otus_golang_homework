@@ -2,7 +2,6 @@ package rabbit
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -12,31 +11,29 @@ import (
 )
 
 type Producer struct {
-	conn         *amqp.Connection
-	channel      *amqp.Channel
-	sendChan     chan string
-	done         chan error
-	uri          string
-	exchangeName string
-	exchangeType string
-	queueName    string
-	maxInterval  time.Duration
-	logger       logger.Logger
+	conn        *amqp.Connection
+	channel     *amqp.Channel
+	sendChan    chan string
+	queueName   string
+	maxInterval time.Duration
+	connector
 }
 
 func NewProducer(uri string, exchangeName string, exchangeType string,
 	queueName string, maxReconTime time.Duration, logger logger.Logger) *Producer {
 	return &Producer{
-		conn:         nil,
-		channel:      nil,
-		sendChan:     make(chan string, 10),
-		done:         make(chan error),
-		uri:          uri,
-		exchangeName: exchangeName,
-		exchangeType: exchangeType,
-		queueName:    queueName,
-		maxInterval:  maxReconTime,
-		logger:       logger,
+		conn:        nil,
+		channel:     nil,
+		sendChan:    make(chan string, 10),
+		queueName:   queueName,
+		maxInterval: maxReconTime,
+		connector: connector{
+			uri:          uri,
+			exchangeName: exchangeName,
+			exchangeType: exchangeType,
+			done:         make(chan error),
+			logger:       logger,
+		},
 	}
 }
 
@@ -81,44 +78,6 @@ func (p *Producer) Handle(ctx context.Context) {
 			}
 		}
 	}
-}
-
-func (p *Producer) Connect() error {
-	var err error
-
-	p.conn, err = amqp.Dial(p.uri)
-	if err != nil {
-		p.logger.Error("dial error", err)
-		return err
-	}
-
-	p.channel, err = p.conn.Channel()
-	if err != nil {
-		p.logger.Error("channel error", err)
-		return err
-	}
-
-	go func() {
-		err := <-p.conn.NotifyClose(make(chan *amqp.Error))
-		p.logger.Info("closing: %s", err)
-		// Понимаем, что канал сообщений закрыт, надо пересоздать соединение.
-		p.done <- errors.New("channel Closed")
-	}()
-
-	if err = p.channel.ExchangeDeclare(
-		p.exchangeName,
-		p.exchangeType,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		p.logger.Error("exchange declare error", err)
-		return err
-	}
-
-	return nil
 }
 
 func (p *Producer) reConnect(ctx context.Context) error {

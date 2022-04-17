@@ -2,7 +2,6 @@ package rabbit
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -12,28 +11,35 @@ import (
 )
 
 type Consumer struct {
-	conn         *amqp.Connection
-	channel      *amqp.Channel
-	done         chan error
-	readChan     chan string
-	consumerTag  string
-	uri          string
-	exchangeName string
-	exchangeType string
-	queue        string
-	bindingKey   string
-	logger       logger.Logger
+	ReadChan    chan string
+	consumerTag string
+	queue       string
+	bindingKey  string
+	connector
 }
 
-func (c *Consumer) Handle(ctx context.Context) error {
-	var err error
-	if err = c.Connect(); err != nil {
-		return fmt.Errorf("error: %v", err)
-	}
+func NewConsumer(uri string, exchangeName string, exchangeType string,
+	queueName string, maxReconTime time.Duration, logger logger.Logger) *Consumer {
+	return &Consumer{
+		ReadChan:    make(chan string),
+		consumerTag: "event_tag",
 
+		queue:      queueName,
+		bindingKey: queueName,
+		connector: connector{
+			uri:          uri,
+			exchangeName: exchangeName,
+			exchangeType: exchangeType,
+			done:         make(chan error),
+			logger:       logger,
+		},
+	}
+}
+
+func (c *Consumer) Handle(ctx context.Context) {
 	msgs, err := c.announceQueue()
 	if err != nil {
-		return fmt.Errorf("error: %v", err)
+		c.logger.Error("Announce queue error: ", err)
 	}
 
 	ctxDone := ctx.Done()
@@ -41,59 +47,22 @@ func (c *Consumer) Handle(ctx context.Context) error {
 		select {
 		case <-ctxDone:
 			c.conn.Close()
-			return nil
+			return
 		case msg := <-msgs:
 			payload := string(msg.Body)
-			c.readChan <- payload
+			c.channel.Ack(msg.DeliveryTag, false)
+			c.ReadChan <- payload
 		case err := <-c.done:
 			if err != nil {
 				msgs, err = c.reConnect(ctx)
 				if err != nil {
 					c.logger.Error("Reconnecting Error: ", err)
-					return err
+					return
 				}
 				c.logger.Info("Reconnected... possibly")
 			}
 		}
 	}
-}
-
-func (c *Consumer) Connect() error {
-	var err error
-
-	c.conn, err = amqp.Dial(c.uri)
-	if err != nil {
-		c.logger.Error("dial error", err)
-		return err
-	}
-
-	c.channel, err = c.conn.Channel()
-	if err != nil {
-		c.logger.Error("channel error", err)
-		return err
-	}
-
-	go func() {
-		err := <-c.conn.NotifyClose(make(chan *amqp.Error))
-		c.logger.Info("closing: %s", err)
-		// Понимаем, что канал сообщений закрыт, надо пересоздать соединение.
-		c.done <- errors.New("channel Closed")
-	}()
-
-	if err = c.channel.ExchangeDeclare(
-		c.exchangeName,
-		c.exchangeType,
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		c.logger.Error("exchange declare error", err)
-		return err
-	}
-
-	return nil
 }
 
 func (c *Consumer) announceQueue() (<-chan amqp.Delivery, error) {
