@@ -1,7 +1,14 @@
 package main
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
 
 func TestRunCmd(t *testing.T) {
-	// Place your code here
+	cmd := []string{"echo"}
+	code := RunCmd(cmd, nil)
+
+	require.Equal(t, 0, code)
 }
