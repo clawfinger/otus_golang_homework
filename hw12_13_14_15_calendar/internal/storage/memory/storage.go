@@ -6,22 +6,22 @@ import (
 	"time"
 
 	appError "github.com/clawfinger/hw12_13_14_15_calendar/internal/errors"
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
+	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
 )
 
 type MemoryStorage struct {
 	m       sync.RWMutex
-	storage map[string]*storage.Event
+	storage map[string]*data.Event
 }
 
 func NewMemoryStorage() *MemoryStorage {
 	return &MemoryStorage{
-		storage: make(map[string]*storage.Event),
+		storage: make(map[string]*data.Event),
 	}
 }
 
 //nolint
-func (s *MemoryStorage) Create(e *storage.Event) error {
+func (s *MemoryStorage) Create(e *data.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	for _, event := range s.storage {
@@ -35,7 +35,7 @@ func (s *MemoryStorage) Create(e *storage.Event) error {
 }
 
 //nolint
-func (s *MemoryStorage) Update(e *storage.Event) error {
+func (s *MemoryStorage) Update(e *data.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	_, ok := s.storage[e.ID]
@@ -48,7 +48,7 @@ func (s *MemoryStorage) Update(e *storage.Event) error {
 }
 
 //nolint
-func (s *MemoryStorage) Delete(e *storage.Event) error {
+func (s *MemoryStorage) Delete(e *data.Event) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 	_, ok := s.storage[e.ID]
@@ -60,8 +60,8 @@ func (s *MemoryStorage) Delete(e *storage.Event) error {
 	return nil
 }
 
-func (s *MemoryStorage) getEventsBetweenDates(from time.Time, to time.Time) []*storage.Event {
-	result := make([]*storage.Event, 0)
+func (s *MemoryStorage) getEventsBetweenDates(from time.Time, to time.Time) []*data.Event {
+	result := make([]*data.Event, 0)
 	s.m.RLock()
 	defer s.m.RUnlock()
 	for _, event := range s.storage {
@@ -72,19 +72,19 @@ func (s *MemoryStorage) getEventsBetweenDates(from time.Time, to time.Time) []*s
 	return result
 }
 
-func (s *MemoryStorage) GetEventsForDay(day time.Time) []*storage.Event {
+func (s *MemoryStorage) GetEventsForDay(day time.Time) []*data.Event {
 	from := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 0, 1)
 	return s.getEventsBetweenDates(from, to)
 }
 
-func (s *MemoryStorage) GetEventsForWeek(weekStart time.Time) []*storage.Event {
+func (s *MemoryStorage) GetEventsForWeek(weekStart time.Time) []*data.Event {
 	from := time.Date(weekStart.Year(), weekStart.Month(), weekStart.Day(), 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 0, 7)
 	return s.getEventsBetweenDates(from, to)
 }
 
-func (s *MemoryStorage) GetEventsForMonth(monthStart time.Time) []*storage.Event {
+func (s *MemoryStorage) GetEventsForMonth(monthStart time.Time) []*data.Event {
 	from := time.Date(monthStart.Year(), monthStart.Month(), monthStart.Day(), 0, 0, 0, 0, time.UTC)
 	to := from.AddDate(0, 1, 0)
 	return s.getEventsBetweenDates(from, to)

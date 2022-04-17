@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
 	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 )
 
 type Handler struct {
@@ -20,8 +20,8 @@ func NewHandler(serverCtx *servers.ServerContext) *Handler {
 	}
 }
 
-func UnmarshallEvent(r *http.Request) (*storage.Event, error) {
-	event := &storage.Event{}
+func UnmarshallEvent(r *http.Request) (*data.Event, error) {
+	event := &data.Event{}
 	decoder := json.NewDecoder(r.Body)
 	err := decoder.Decode(event)
 	return event, err

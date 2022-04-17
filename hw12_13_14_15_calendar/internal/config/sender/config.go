@@ -1,4 +1,4 @@
-package config
+package senderconfig
 
 import (
 	"fmt"
@@ -8,9 +8,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// При желании конфигурацию можно вынести в internal/config.
-// Организация конфига в main принуждает нас сужать API компонентов, использовать
-// при их конструировании только необходимые параметры, а также уменьшает вероятность циклической зависимости.
 type Config struct {
 	Data *Data
 }
@@ -40,9 +37,5 @@ func (c *Config) Init(cfgFilePath string) error {
 	}
 
 	err = viper.WriteConfig()
-	c.Data.DBData.Username = viper.GetString("dbdata.username")
-	c.Data.DBData.Password = viper.GetString("dbdata.password")
 	return err
 }
-
-// TODO

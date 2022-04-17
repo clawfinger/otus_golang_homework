@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/app"
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"
+	calendarapp "github.com/clawfinger/hw12_13_14_15_calendar/internal/appdata/calendar"
+	calendarconfig "github.com/clawfinger/hw12_13_14_15_calendar/internal/config/calendar"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
 	grpcserver "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/grpc/server"
@@ -30,13 +30,13 @@ func main() {
 	rootCmd := &cobra.Command{
 		Use: "calendar",
 		Run: func(cmd *cobra.Command, args []string) {
-			config := config.NewConfig()
+			config := calendarconfig.NewConfig()
 			err := config.Init(configFile)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error on config init, Reason: %s", err.Error())
 				return
 			}
-			logger, err := logger.New(config)
+			logger, err := logger.New(config.Data.Logger.Level, config.Data.Logger.Filename)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error on logger init, Reason: %s", err.Error())
 				return
@@ -62,7 +62,7 @@ func main() {
 			defer httpServer.Stop(ctx)
 			defer grpcServer.Stop()
 			defer abstractStorage.Close(ctx)
-			app := app.New(config, logger, abstractStorage, httpServer, grpcServer)
+			app := calendarapp.New(config, logger, abstractStorage, httpServer, grpcServer)
 
 			app.Run(ctx)
 		},

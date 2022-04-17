@@ -1,14 +1,21 @@
-BIN := "./bin/calendar"
+CALENDAR_BIN := "./bin/calendar"
+SCHEDULER_BIN := "./bin/scheduler"
+SENDER_BIN := "./bin/sender"
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
 build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(CALENDAR_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+	go build -v -o $(SCHEDULER_BIN) -ldflags "$(LDFLAGS)" ./cmd/scheduler
+	go build -v -o $(SENDER_BIN) -ldflags "$(LDFLAGS)" ./cmd/sender
 
 run: build
-	$(BIN) -c ./configs/config.json
+	$(CALENDAR_BIN) --config ./configs/calendar_config.json
+	$(SCHEDULER_BIN) --config ./configs/scheduler_config.json
+	$(SENDER_BIN) --config ./configs/sender_config.json
+
 
 build-img:
 	docker build \
@@ -20,7 +27,7 @@ run-img: build-img
 	docker run $(DOCKER_IMG)
 
 version: build
-	$(BIN) version
+	$(CALENDAR_BIN) version
 
 test:
 	go test -race ./internal/...
@@ -31,14 +38,17 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
+rabbit: 
+	docker start rabbitmq || docker run -d -p 5672:5672 --name rabbitmq rabbitmq:3
+
 generate:
-	rm -rf internal/server/grpc/generated
-	mkdir -p internal/server/grpc/generated
+	rm -rf api/generated
+	mkdir -p api/generated
 
 	protoc \
-		--proto_path=proto/ \
-		--go_out=internal/server/grpc/generated \
-		--go-grpc_out=internal/server/grpc/generated \
-		proto/*.proto
+		--proto_path=api/ \
+		--go_out=api/generated \
+		--go-grpc_out=api/generated \
+		api/*.proto
 
-.PHONY: build run build-img run-img version test lint
+.PHONY: build run build-img run-img version test lint rabbit

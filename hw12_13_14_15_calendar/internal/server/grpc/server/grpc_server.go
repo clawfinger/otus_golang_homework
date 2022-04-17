@@ -4,14 +4,12 @@ import (
 	"context"
 	"log"
 	"net"
-	"time"
 
+	pb "github.com/clawfinger/hw12_13_14_15_calendar/api/generated"
+	data "github.com/clawfinger/hw12_13_14_15_calendar/internal/event"
 	servers "github.com/clawfinger/hw12_13_14_15_calendar/internal/server"
-	pb "github.com/clawfinger/hw12_13_14_15_calendar/internal/server/grpc/generated"
-	"github.com/clawfinger/hw12_13_14_15_calendar/internal/storage"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	"google.golang.org/grpc"
-	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GrpcServer struct {
@@ -44,33 +42,9 @@ func (s *GrpcServer) Stop() error {
 	return nil
 }
 
-func EventFromPBData(event *pb.Event) *storage.Event {
-	return &storage.Event{
-		ID:          event.ID,
-		Title:       event.Title,
-		Date:        event.Date.AsTime(),
-		Duration:    time.Duration(event.Duration),
-		Description: event.Description,
-		OwnerID:     event.OwnerID,
-		NotifyTime:  time.Duration(event.NotifyTime),
-	}
-}
-
-func PBDataFromEvent(event *storage.Event) *pb.Event {
-	return &pb.Event{
-		ID:          event.ID,
-		Title:       event.Title,
-		Date:        timestamppb.New(event.Date),
-		Duration:    uint64(event.Duration.Nanoseconds()),
-		Description: event.Description,
-		OwnerID:     event.OwnerID,
-		NotifyTime:  uint64(event.NotifyTime.Nanoseconds()),
-	}
-}
-
 func (s *GrpcServer) Create(ctx context.Context, e *pb.Event) (*pb.ModificationResult, error) {
 	res := &pb.ModificationResult{}
-	err := s.context.Storage.Create(EventFromPBData(e))
+	err := s.context.Storage.Create(data.EventFromPBData(e))
 	if err != nil {
 		res.Error = err.Error()
 	} else {
@@ -81,7 +55,7 @@ func (s *GrpcServer) Create(ctx context.Context, e *pb.Event) (*pb.ModificationR
 
 func (s *GrpcServer) Update(ctx context.Context, e *pb.Event) (*pb.ModificationResult, error) {
 	res := &pb.ModificationResult{}
-	err := s.context.Storage.Update(EventFromPBData(e))
+	err := s.context.Storage.Update(data.EventFromPBData(e))
 	if err != nil {
 		res.Error = err.Error()
 	} else {
@@ -92,7 +66,7 @@ func (s *GrpcServer) Update(ctx context.Context, e *pb.Event) (*pb.ModificationR
 
 func (s *GrpcServer) Delete(ctx context.Context, e *pb.Event) (*pb.ModificationResult, error) {
 	res := &pb.ModificationResult{}
-	err := s.context.Storage.Delete(EventFromPBData(e))
+	err := s.context.Storage.Delete(data.EventFromPBData(e))
 	if err != nil {
 		res.Error = err.Error()
 	} else {
@@ -105,7 +79,7 @@ func (s *GrpcServer) GetEventsForDay(ctx context.Context, time *timestamp.Timest
 	res := &pb.RequestResult{}
 	events := s.context.Storage.GetEventsForDay(time.AsTime())
 	for _, event := range events {
-		res.Events = append(res.Events, PBDataFromEvent(event))
+		res.Events = append(res.Events, data.PBDataFromEvent(event))
 	}
 	return res, nil
 }
@@ -114,7 +88,7 @@ func (s *GrpcServer) GetEventsForWeek(ctx context.Context, time *timestamp.Times
 	res := &pb.RequestResult{}
 	events := s.context.Storage.GetEventsForWeek(time.AsTime())
 	for _, event := range events {
-		res.Events = append(res.Events, PBDataFromEvent(event))
+		res.Events = append(res.Events, data.PBDataFromEvent(event))
 	}
 	return res, nil
 }
@@ -123,7 +97,7 @@ func (s *GrpcServer) GetEventsForMonth(ctx context.Context, time *timestamp.Time
 	res := &pb.RequestResult{}
 	events := s.context.Storage.GetEventsForMonth(time.AsTime())
 	for _, event := range events {
-		res.Events = append(res.Events, PBDataFromEvent(event))
+		res.Events = append(res.Events, data.PBDataFromEvent(event))
 	}
 	return res, nil
 }
