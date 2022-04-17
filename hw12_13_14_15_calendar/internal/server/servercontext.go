@@ -1,4 +1,4 @@
-package internalhttp
+package servers
 
 import (
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/config"

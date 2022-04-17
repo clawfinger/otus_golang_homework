@@ -9,6 +9,7 @@ type Data struct {
 	Logger  LoggerConf
 	Storage Storage
 	HTTP    HTTP
+	Grpc    Grpc
 }
 
 func newConfigData() *Data {
@@ -19,6 +20,7 @@ func (d *Data) SetDefault(v *viper.Viper) {
 	d.Logger.SetDefault(v)
 	d.Storage.SetDefault(v)
 	d.HTTP.SetDefault(v)
+	d.Grpc.SetDefault(v)
 }
 
 type HTTP struct {
@@ -55,5 +57,15 @@ type Storage struct {
 func (d *Storage) SetDefault(v *viper.Viper) {
 	v.SetDefault("storage", map[string]interface{}{
 		"Type": "inmemory",
+	})
+}
+
+type Grpc struct {
+	Addr string
+}
+
+func (d *Grpc) SetDefault(v *viper.Viper) {
+	v.SetDefault("Grpc", map[string]interface{}{
+		"Addr": "127.0.0.1:50051",
 	})
 }

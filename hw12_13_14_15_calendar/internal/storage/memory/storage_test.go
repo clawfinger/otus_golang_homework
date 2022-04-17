@@ -1,7 +1,6 @@
 package memorystorage
 
 import (
-	"errors"
 	"math/rand"
 	"sync"
 	"testing"
@@ -15,14 +14,15 @@ import (
 func TestStorage(t *testing.T) {
 	now := time.Now()
 
-	t.Run("Add the same", func(t *testing.T) {
+	t.Run("Add to the busy", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
-		event, err := storage.NewEvent("title", time.Now(), 5*time.Minute, "owner")
+		event, err := storage.NewEvent("title", now, 5*time.Minute, "owner")
 		require.NoError(t, err)
 		err = testStorage.Create(event)
 		require.NoError(t, err)
-		err = testStorage.Create(event)
-		require.True(t, errors.Is(err, appError.ErrDateBusy))
+		event2, _ := storage.NewEvent("title2", now.Add(1*time.Minute), 5*time.Minute, "owner2")
+		err = testStorage.Create(event2)
+		require.ErrorIs(t, err, appError.ErrDateBusy)
 	})
 	t.Run("Get for day", func(t *testing.T) {
 		testStorage := NewMemoryStorage()
