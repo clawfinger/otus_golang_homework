@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	//nolint:backoff
+	//nolint
 	"github.com/cenkalti/backoff/v3"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	"github.com/streadway/amqp"
@@ -81,7 +81,7 @@ func (p *Producer) Handle(ctx context.Context) {
 	}
 }
 
-//nolint:backoff
+//nolint
 func (p *Producer) reConnect(ctx context.Context) error {
 	be := backoff.NewExponentialBackOff()
 	be.MaxElapsedTime = time.Minute

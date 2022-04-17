@@ -38,6 +38,9 @@ install-lint-deps:
 lint: install-lint-deps
 	golangci-lint run ./...
 
+rabbit: 
+	docker start rabbitmq || docker run -d -p 5672:5672 --name rabbitmq rabbitmq:3
+
 generate:
 	rm -rf api/generated
 	mkdir -p api/generated
@@ -48,4 +51,4 @@ generate:
 		--go-grpc_out=api/generated \
 		api/*.proto
 
-.PHONY: build run build-img run-img version test lint
+.PHONY: build run build-img run-img version test lint rabbit

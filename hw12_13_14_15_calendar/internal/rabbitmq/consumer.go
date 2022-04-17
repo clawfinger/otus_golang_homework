@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	//nolint:backoff
+	//nolint
 	"github.com/cenkalti/backoff/v3"
 	"github.com/clawfinger/hw12_13_14_15_calendar/internal/logger"
 	"github.com/streadway/amqp"
@@ -118,7 +118,7 @@ func (c *Consumer) announceQueue() (<-chan amqp.Delivery, error) {
 	return msgs, nil
 }
 
-//nolint:backoff
+//nolint
 func (c *Consumer) reConnect(ctx context.Context) (<-chan amqp.Delivery, error) {
 	be := backoff.NewExponentialBackOff()
 	be.MaxElapsedTime = time.Minute
